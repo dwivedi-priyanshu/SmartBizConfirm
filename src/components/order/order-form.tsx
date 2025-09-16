@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,11 +9,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { formSchema, OrderFormValues } from "@/lib/types";
-import { PlusCircle, Trash2, Eye } from "lucide-react";
+import { PlusCircle, Trash2, Eye, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { InvoicePreview } from "./invoice-preview";
 import { useToast } from "@/hooks/use-toast";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { createOrderAction } from "@/app/order/actions";
 
 const defaultValues: OrderFormValues = {
   customerName: "",
@@ -24,6 +26,7 @@ const defaultValues: OrderFormValues = {
 
 export function OrderForm() {
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
@@ -46,13 +49,24 @@ export function OrderForm() {
   }, [watchedItems, watchedTaxRate]);
 
 
-  function onSubmit(data: OrderFormValues) {
-    console.log(data);
-    toast({
-      title: "Order Confirmed!",
-      description: "Your order has been processed and notifications have been sent.",
-    });
-    // In a real app, this would trigger API calls.
+  async function onSubmit(data: OrderFormValues) {
+    setIsSubmitting(true);
+    const result = await createOrderAction(data);
+    setIsSubmitting(false);
+
+    if (result.success) {
+      toast({
+        title: "Order Confirmed!",
+        description: result.data?.message || `Your order (ID: ${result.data?.confirmationId}) has been processed.`,
+      });
+      form.reset(defaultValues);
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Order Failed",
+        description: result.error || "There was a problem submitting your order.",
+      });
+    }
   }
 
   return (
@@ -109,14 +123,14 @@ export function OrderForm() {
                     <FormField control={form.control} name={`items.${index}.quantity`} render={({ field }) => (
                       <FormItem className="col-span-4 sm:col-span-2">
                         <FormLabel className={index !== 0 ? 'sr-only' : ''}>Qty</FormLabel>
-                        <FormControl><Input type="number" placeholder="1" {...field} /></FormControl>
+                        <FormControl><Input type="number" placeholder="1" {...field} onChange={e => field.onChange(Number(e.target.value))}/></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={form.control} name={`items.${index}.price`} render={({ field }) => (
                       <FormItem className="col-span-5 sm:col-span-3">
                         <FormLabel className={index !== 0 ? 'sr-only' : ''}>Price</FormLabel>
-                        <FormControl><Input type="number" placeholder="12500.00" {...field} /></FormControl>
+                        <FormControl><Input type="number" placeholder="12500.00" {...field} onChange={e => field.onChange(Number(e.target.value))}/></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -152,7 +166,7 @@ export function OrderForm() {
                   <div className="w-24">
                     <FormField control={form.control} name="taxRate" render={({ field }) => (
                       <FormItem>
-                        <FormControl><Input type="number" {...field} className="text-right" /></FormControl>
+                        <FormControl><Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} className="text-right" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -171,7 +185,7 @@ export function OrderForm() {
               <CardFooter>
                  <Dialog>
                   <DialogTrigger asChild>
-                    <Button type="button" className="w-full" disabled={!form.formState.isValid}>
+                    <Button type="button" className="w-full" disabled={!form.formState.isValid || isSubmitting}>
                       <Eye className="mr-2 h-4 w-4" /> Preview Order
                     </Button>
                   </DialogTrigger>
@@ -182,10 +196,12 @@ export function OrderForm() {
                     <InvoicePreview data={form.getValues()} />
                     <DialogFooter>
                        <DialogClose asChild>
-                        <Button type="button" variant="outline">Edit</Button>
+                        <Button type="button" variant="outline" disabled={isSubmitting}>Edit</Button>
                       </DialogClose>
                       <DialogClose asChild>
-                        <Button type="submit" onClick={() => form.handleSubmit(onSubmit)()}>Confirm & Send</Button>
+                         <Button type="submit" onClick={() => form.handleSubmit(onSubmit)()} disabled={isSubmitting}>
+                          {isSubmitting ? <Loader2 className="animate-spin" /> : 'Confirm & Send'}
+                        </Button>
                       </DialogClose>
                     </DialogFooter>
                   </DialogContent>
