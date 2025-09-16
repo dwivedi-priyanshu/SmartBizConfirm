@@ -60,7 +60,7 @@ export function OrderForm() {
     // Filter out empty items before submitting
     const processedData = {
       ...data,
-      items: data.items.filter(item => item.name.trim() !== "" || item.price > 0),
+      items: data.items.filter(item => item.name.trim() !== ""),
     };
 
     if (processedData.items.length === 0) {
@@ -145,14 +145,14 @@ export function OrderForm() {
                     <FormField control={form.control} name={`items.${index}.quantity`} render={({ field }) => (
                       <FormItem className="col-span-4 sm:col-span-2">
                         <FormLabel className={index !== 0 ? 'sr-only' : ''}>Qty</FormLabel>
-                        <FormControl><Input type="number" placeholder="1" {...field} onChange={e => field.onChange(Number(e.target.value))}/></FormControl>
+                        <FormControl><Input type="text" inputMode="decimal" placeholder="1" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={form.control} name={`items.${index}.price`} render={({ field }) => (
                       <FormItem className="col-span-5 sm:col-span-3">
                         <FormLabel className={index !== 0 ? 'sr-only' : ''}>Price</FormLabel>
-                        <FormControl><Input type="number" placeholder="12500.00" {...field} onChange={e => field.onChange(Number(e.target.value))}/></FormControl>
+                        <FormControl><Input type="text" inputMode="decimal" placeholder="12500.00" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -234,7 +234,3 @@ export function OrderForm() {
     </Form>
   );
 }
-
-    
-
-    
