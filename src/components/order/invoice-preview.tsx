@@ -46,8 +46,8 @@ export function InvoicePreview({ data }: InvoicePreviewProps) {
               <TableRow key={index}>
                 <TableCell className="font-medium">{item.name}</TableCell>
                 <TableCell className="text-center">{item.quantity}</TableCell>
-                <TableCell className="text-right">{item.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
-                <TableCell className="text-right">{(item.quantity * item.price).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
+                <TableCell className="text-right">{item.price.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</TableCell>
+                <TableCell className="text-right">{(item.quantity * item.price).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -57,15 +57,15 @@ export function InvoicePreview({ data }: InvoicePreviewProps) {
             <div className="w-full max-w-xs space-y-2">
                  <div className="flex justify-between">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span>{subtotal.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
+                    <span>{subtotal.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
                 </div>
                  <div className="flex justify-between">
                     <span className="text-muted-foreground">Tax ({data.taxRate}%)</span>
-                    <span>{taxAmount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
+                    <span>{taxAmount.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
                 </div>
                  <div className="flex justify-between font-bold text-lg">
                     <span>Total</span>
-                    <span>{total.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
+                    <span>{total.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
                 </div>
             </div>
         </div>

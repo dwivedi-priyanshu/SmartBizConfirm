@@ -84,7 +84,7 @@ export function OrderForm() {
                   <FormField control={form.control} name="customerPhone" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Phone</FormLabel>
-                      <FormControl><Input type="tel" placeholder="(123) 456-7890" {...field} /></FormControl>
+                      <FormControl><Input type="tel" placeholder="+91 12345 67890" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
@@ -116,7 +116,7 @@ export function OrderForm() {
                     <FormField control={form.control} name={`items.${index}.price`} render={({ field }) => (
                       <FormItem className="col-span-5 sm:col-span-3">
                         <FormLabel className={index !== 0 ? 'sr-only' : ''}>Price</FormLabel>
-                        <FormControl><Input type="number" placeholder="150.00" {...field} /></FormControl>
+                        <FormControl><Input type="number" placeholder="12500.00" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -145,7 +145,7 @@ export function OrderForm() {
               <CardContent className="space-y-4">
                 <div className="flex justify-between text-sm">
                   <span>Subtotal</span>
-                  <span>{subtotal.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
+                  <span>{subtotal.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span>Tax Rate (%)</span>
@@ -161,11 +161,11 @@ export function OrderForm() {
                 <Separator />
                 <div className="flex justify-between text-sm">
                   <span>Tax</span>
-                  <span>{taxAmount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
+                  <span>{taxAmount.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
                 </div>
                 <div className="flex justify-between font-bold text-lg">
                   <span>Total</span>
-                  <span>{total.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
+                  <span>{total.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
                 </div>
               </CardContent>
               <CardFooter>

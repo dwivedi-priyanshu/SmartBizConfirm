@@ -40,7 +40,7 @@ export function OrdersTable({ orders }: OrdersTableProps) {
               <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
             </TableCell>
             <TableCell className="text-right">
-              {order.total.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+              {order.total.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}
             </TableCell>
           </TableRow>
         ))}

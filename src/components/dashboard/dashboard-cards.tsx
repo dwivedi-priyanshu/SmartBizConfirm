@@ -25,7 +25,7 @@ export function DashboardCards({ orders }: DashboardCardsProps) {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {totalSales.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+            {totalSales.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}
           </div>
           <p className="text-xs text-muted-foreground">Total revenue from all non-cancelled orders</p>
         </CardContent>
