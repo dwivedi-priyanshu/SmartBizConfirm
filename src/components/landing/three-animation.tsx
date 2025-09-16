@@ -14,7 +14,6 @@ export function ThreeAnimation() {
     let frameId: number;
 
     const scene = new THREE.Scene();
-
     const camera = new THREE.PerspectiveCamera(75, currentMount.clientWidth / currentMount.clientHeight, 0.1, 1000);
     camera.position.z = 5;
 
@@ -23,56 +22,39 @@ export function ThreeAnimation() {
     renderer.setPixelRatio(window.devicePixelRatio);
     currentMount.appendChild(renderer.domElement);
 
-    const objects: THREE.Mesh[] = [];
-    const geometry = new THREE.PlaneGeometry(1, 1.4);
+    const particleCount = 5000;
+    const particles = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+    const colors = new Float32Array(particleCount * 3);
 
-    const createTexture = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = 256;
-        canvas.height = 358;
-        const context = canvas.getContext('2d');
-        if (!context) return new THREE.CanvasTexture(canvas);
+    const color1 = new THREE.Color('hsl(207, 70%, 53%)'); // Primary
+    const color2 = new THREE.Color('hsl(283, 44%, 47%)'); // Accent
 
-        context.fillStyle = 'hsl(240 10% 15.9%)';
-        context.fillRect(0, 0, canvas.width, canvas.height);
-        context.strokeStyle = 'hsl(207 70% 53%)';
-        context.lineWidth = 10;
-        context.strokeRect(0, 0, canvas.width, canvas.height);
+    for (let i = 0; i < particleCount; i++) {
+        const i3 = i * 3;
+        positions[i3] = (Math.random() - 0.5) * 20;
+        positions[i3 + 1] = (Math.random() - 0.5) * 20;
+        positions[i3 + 2] = (Math.random() - 0.5) * 20;
         
-        context.fillStyle = 'hsl(240 5% 64.9%)';
-        context.fillRect(20, 20, 80, 20);
-        for (let i = 0; i < 5; i++) {
-            context.fillRect(20, 60 + i * 30, Math.random() * 150 + 60, 15);
-        }
-        context.fillStyle = 'hsl(207 70% 53%)';
-        context.fillRect(20, 250, 216, 30);
-        return new THREE.CanvasTexture(canvas);
-    };
+        const mixedColor = color1.clone().lerp(color2, Math.random());
+        colors[i3] = mixedColor.r;
+        colors[i3 + 1] = mixedColor.g;
+        colors[i3 + 2] = mixedColor.b;
+    }
 
-    const material = new THREE.MeshBasicMaterial({
-        map: createTexture(),
-        side: THREE.DoubleSide,
+    particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    const particleMaterial = new THREE.PointsMaterial({
+        size: 0.05,
+        vertexColors: true,
+        blending: THREE.AdditiveBlending,
+        transparent: true,
+        opacity: 0.7,
     });
 
-    for (let i = 0; i < 50; i++) {
-      const mesh = new THREE.Mesh(geometry, material);
-      mesh.position.set(
-        (Math.random() - 0.5) * 20,
-        (Math.random() - 0.5) * 20,
-        (Math.random() - 0.5) * 20
-      );
-      mesh.rotation.set(
-        Math.random() * Math.PI,
-        Math.random() * Math.PI,
-        Math.random() * Math.PI
-      );
-      mesh.userData.rotationSpeed = {
-        x: (Math.random() - 0.5) * 0.005,
-        y: (Math.random() - 0.5) * 0.005,
-      };
-      scene.add(mesh);
-      objects.push(mesh);
-    }
+    const particleSystem = new THREE.Points(particles, particleMaterial);
+    scene.add(particleSystem);
 
     let mouseX = 0, mouseY = 0;
 
@@ -82,16 +64,17 @@ export function ThreeAnimation() {
     };
     document.addEventListener('mousemove', onMouseMove);
 
+    const clock = new THREE.Clock();
+
     const animate = () => {
       frameId = requestAnimationFrame(animate);
+      const elapsedTime = clock.getElapsedTime();
 
-      objects.forEach(obj => {
-        obj.rotation.x += obj.userData.rotationSpeed.x;
-        obj.rotation.y += obj.userData.rotationSpeed.y;
-      });
+      particleSystem.rotation.y = elapsedTime * 0.1;
+      particleSystem.rotation.x = elapsedTime * 0.05;
       
-      camera.position.x += (mouseX * 2 - camera.position.x) * 0.02;
-      camera.position.y += (-mouseY * 2 - camera.position.y) * 0.02;
+      camera.position.x += (mouseX * 1.5 - camera.position.x) * 0.02;
+      camera.position.y += (-mouseY * 1.5 - camera.position.y) * 0.02;
       camera.lookAt(scene.position);
 
       renderer.render(scene, camera);
@@ -114,12 +97,8 @@ export function ThreeAnimation() {
       if (currentMount) {
         currentMount.removeChild(renderer.domElement);
       }
-      geometry.dispose();
-      const texture = material.map;
-      if (texture) {
-          texture.dispose();
-      }
-      material.dispose();
+      particles.dispose();
+      particleMaterial.dispose();
     };
   }, []);
 
