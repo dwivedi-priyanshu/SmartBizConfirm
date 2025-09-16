@@ -9,12 +9,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { formSchema, OrderFormValues } from "@/lib/types";
-import { PlusCircle, Trash2, Eye, Loader2 } from "lucide-react";
+import { PlusCircle, Trash2, Eye, Loader2, Sparkles } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { InvoicePreview } from "./invoice-preview";
 import { useToast } from "@/hooks/use-toast";
 import { useMemo, useState } from "react";
 import { createOrderAction } from "@/app/order/actions";
+import { cn } from "@/lib/utils";
 
 const defaultValues: OrderFormValues = {
   customerName: "",
@@ -69,17 +70,21 @@ export function OrderForm() {
     }
   }
 
+  const StyledCard = ({className, ...props}: React.ComponentProps<typeof Card>) => (
+      <Card className={cn("bg-card/60 backdrop-blur-sm border-border/50 transition-all duration-300 hover:border-border", className)} {...props} />
+  )
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-6">
-            <Card>
+          <div className="lg:col-span-2 space-y-8">
+            <StyledCard>
               <CardHeader>
-                <CardTitle>Create New Order</CardTitle>
+                <CardTitle className="text-3xl flex items-center gap-2"><Sparkles className="text-primary"/>Create New Order</CardTitle>
                 <CardDescription>Fill in the details below to create a new order and invoice.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
                  <FormField control={form.control} name="customerName" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Customer Name</FormLabel>
@@ -87,7 +92,7 @@ export function OrderForm() {
                     <FormMessage />
                   </FormItem>
                 )} />
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <FormField control={form.control} name="customerEmail" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Email</FormLabel>
@@ -104,15 +109,15 @@ export function OrderForm() {
                   )} />
                 </div>
               </CardContent>
-            </Card>
+            </StyledCard>
 
-            <Card>
+            <StyledCard>
               <CardHeader>
                 <CardTitle>Order Items</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {fields.map((field, index) => (
-                  <div key={field.id} className="grid grid-cols-12 gap-2 items-start">
+                  <div key={field.id} className="grid grid-cols-12 gap-2 items-start animate-in fade-in-0 slide-in-from-top-4 duration-300">
                     <FormField control={form.control} name={`items.${index}.name`} render={({ field }) => (
                       <FormItem className="col-span-12 sm:col-span-5">
                         <FormLabel className={index !== 0 ? 'sr-only' : ''}>Item Name</FormLabel>
@@ -136,8 +141,8 @@ export function OrderForm() {
                     )} />
                     <div className="col-span-3 sm:col-span-2 flex items-end h-full">
                        {fields.length > 1 && (
-                        <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="mt-auto self-center">
-                          <Trash2 className="h-4 w-4 text-destructive" />
+                        <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="mt-auto self-center group">
+                          <Trash2 className="h-4 w-4 text-muted-foreground group-hover:text-destructive transition-colors" />
                           <span className="sr-only">Remove item</span>
                         </Button>
                        )}
@@ -148,34 +153,34 @@ export function OrderForm() {
                   <PlusCircle className="mr-2 h-4 w-4" /> Add Item
                 </Button>
               </CardContent>
-            </Card>
+            </StyledCard>
           </div>
           
           <div className="lg:col-span-1">
-            <Card className="sticky top-20">
+            <StyledCard className="sticky top-20">
               <CardHeader>
                 <CardTitle>Order Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-sm text-muted-foreground">
                   <span>Subtotal</span>
-                  <span>{subtotal.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
+                  <span className="font-medium text-foreground">{subtotal.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
                 </div>
-                <div className="flex justify-between items-center text-sm">
+                <div className="flex justify-between items-center text-sm text-muted-foreground">
                   <span>Tax Rate (%)</span>
                   <div className="w-24">
                     <FormField control={form.control} name="taxRate" render={({ field }) => (
                       <FormItem>
-                        <FormControl><Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} className="text-right" /></FormControl>
+                        <FormControl><Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} className="text-right bg-transparent" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                   </div>
                 </div>
-                <Separator />
-                <div className="flex justify-between text-sm">
+                <Separator className="my-4 bg-border/50" />
+                <div className="flex justify-between text-sm text-muted-foreground">
                   <span>Tax</span>
-                  <span>{taxAmount.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
+                  <span className="font-medium text-foreground">{taxAmount.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
                 </div>
                 <div className="flex justify-between font-bold text-lg">
                   <span>Total</span>
@@ -185,11 +190,11 @@ export function OrderForm() {
               <CardFooter>
                  <Dialog>
                   <DialogTrigger asChild>
-                    <Button type="button" className="w-full" disabled={!form.formState.isValid || isSubmitting}>
+                    <Button type="button" className="w-full" variant="secondary" disabled={!form.formState.isValid || isSubmitting}>
                       <Eye className="mr-2 h-4 w-4" /> Preview Order
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-3xl">
+                  <DialogContent className="sm:max-w-3xl bg-card/80 backdrop-blur-xl">
                     <DialogHeader>
                       <DialogTitle>Invoice Preview</DialogTitle>
                     </DialogHeader>
@@ -198,16 +203,14 @@ export function OrderForm() {
                        <DialogClose asChild>
                         <Button type="button" variant="outline" disabled={isSubmitting}>Edit</Button>
                       </DialogClose>
-                      <DialogClose asChild>
-                         <Button type="submit" onClick={() => form.handleSubmit(onSubmit)()} disabled={isSubmitting}>
-                          {isSubmitting ? <Loader2 className="animate-spin" /> : 'Confirm & Send'}
-                        </Button>
-                      </DialogClose>
+                       <Button type="submit" onClick={() => form.handleSubmit(onSubmit)()} disabled={isSubmitting} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                        {isSubmitting ? <Loader2 className="animate-spin" /> : 'Confirm & Send'}
+                      </Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
               </CardFooter>
-            </Card>
+            </StyledCard>
           </div>
         </div>
       </form>
