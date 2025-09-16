@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useRef } from 'react';
@@ -10,6 +11,7 @@ export function ThreeAnimation() {
     if (!mountRef.current) return;
 
     const currentMount = mountRef.current;
+    let frameId: number;
 
     const scene = new THREE.Scene();
 
@@ -31,13 +33,18 @@ export function ThreeAnimation() {
         const context = canvas.getContext('2d');
         if (!context) return new THREE.CanvasTexture(canvas);
 
-        context.fillStyle = 'white';
+        context.fillStyle = 'hsl(240 10% 15.9%)';
         context.fillRect(0, 0, canvas.width, canvas.height);
-        context.fillStyle = '#e0e0e0';
+        context.strokeStyle = 'hsl(207 70% 53%)';
+        context.lineWidth = 10;
+        context.strokeRect(0, 0, canvas.width, canvas.height);
+        
+        context.fillStyle = 'hsl(240 5% 64.9%)';
         context.fillRect(20, 20, 80, 20);
         for (let i = 0; i < 5; i++) {
             context.fillRect(20, 60 + i * 30, Math.random() * 150 + 60, 15);
         }
+        context.fillStyle = 'hsl(207 70% 53%)';
         context.fillRect(20, 250, 216, 30);
         return new THREE.CanvasTexture(canvas);
     };
@@ -76,7 +83,7 @@ export function ThreeAnimation() {
     document.addEventListener('mousemove', onMouseMove);
 
     const animate = () => {
-      requestAnimationFrame(animate);
+      frameId = requestAnimationFrame(animate);
 
       objects.forEach(obj => {
         obj.rotation.x += obj.userData.rotationSpeed.x;
@@ -101,17 +108,18 @@ export function ThreeAnimation() {
     window.addEventListener('resize', handleResize);
 
     return () => {
+      cancelAnimationFrame(frameId);
       window.removeEventListener('resize', handleResize);
       document.removeEventListener('mousemove', onMouseMove);
       if (currentMount) {
         currentMount.removeChild(renderer.domElement);
       }
       geometry.dispose();
-      material.dispose();
-      const texture = material.map as THREE.CanvasTexture;
+      const texture = material.map;
       if (texture) {
           texture.dispose();
       }
+      material.dispose();
     };
   }, []);
 
