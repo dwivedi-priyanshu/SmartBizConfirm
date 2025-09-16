@@ -6,7 +6,7 @@ import { Collection } from 'mongodb';
 
 async function getOrdersCollection(): Promise<Collection<Order>> {
     const client = await clientPromise;
-    const db = client.db();
+    const db = client.db('Cluster0');
     return db.collection<Order>('orders');
 }
 
