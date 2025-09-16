@@ -11,10 +11,10 @@ import {ai} from '@/ai/genkit';
 import {z} from 'zod';
 import {formSchema} from '@/lib/types';
 
-export const ProcessOrderInputSchema = formSchema;
+const ProcessOrderInputSchema = formSchema;
 export type ProcessOrderInput = z.infer<typeof ProcessOrderInputSchema>;
 
-export const ProcessOrderOutputSchema = z.object({
+const ProcessOrderOutputSchema = z.object({
   confirmationId: z.string().describe('A unique confirmation ID for the order.'),
   message: z.string().describe('A confirmation message to be shown to the user.'),
 });
