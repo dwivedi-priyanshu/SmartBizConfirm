@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Order } from '@/lib/types';
@@ -35,7 +36,7 @@ export function OrdersTable({ orders }: OrdersTableProps) {
           <TableRow key={order.id}>
             <TableCell className="font-medium">{order.id}</TableCell>
             <TableCell>{order.customerName}</TableCell>
-            <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
+            <TableCell>{new Date(order.date).toLocaleDateString('en-IN')}</TableCell>
             <TableCell>
               <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
             </TableCell>
