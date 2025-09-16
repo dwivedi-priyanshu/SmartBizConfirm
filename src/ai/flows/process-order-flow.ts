@@ -10,6 +10,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
 import {formSchema} from '@/lib/types';
+import { addOrder } from '@/lib/order-service';
 
 const ProcessOrderInputSchema = formSchema;
 export type ProcessOrderInput = z.infer<typeof ProcessOrderInputSchema>;
@@ -55,8 +56,24 @@ const processOrderFlow = ai.defineFlow(
     outputSchema: ProcessOrderOutputSchema,
   },
   async (input) => {
-    // In a real app, you would save the order to a database here.
     const {output} = await prompt(input);
-    return output!;
+
+    if (!output) {
+      throw new Error('Failed to process order.');
+    }
+
+    const subtotal = input.items.reduce((acc, item) => acc + item.quantity * item.price, 0);
+    const taxAmount = subtotal * (input.taxRate / 100);
+    const total = subtotal + taxAmount;
+
+    await addOrder({
+        id: output.confirmationId,
+        customerName: input.customerName,
+        date: new Date().toISOString(),
+        total: total,
+        status: 'Confirmed'
+    });
+    
+    return output;
   }
 );
