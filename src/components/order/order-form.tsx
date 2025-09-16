@@ -190,7 +190,7 @@ export function OrderForm() {
               <CardFooter>
                  <Dialog>
                   <DialogTrigger asChild>
-                    <Button type="button" className="w-full" variant="secondary" disabled={!form.formState.isValid || isSubmitting}>
+                    <Button type="button" className="w-full" variant="secondary">
                       <Eye className="mr-2 h-4 w-4" /> Preview Order
                     </Button>
                   </DialogTrigger>
@@ -201,9 +201,9 @@ export function OrderForm() {
                     <InvoicePreview data={form.getValues()} />
                     <DialogFooter>
                        <DialogClose asChild>
-                        <Button type="button" variant="outline" disabled={isSubmitting}>Edit</Button>
+                        <Button type="button" variant="outline">Edit</Button>
                       </DialogClose>
-                       <Button type="submit" onClick={() => form.handleSubmit(onSubmit)()} disabled={isSubmitting} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                       <Button type="submit" onClick={() => form.handleSubmit(onSubmit)()} disabled={!form.formState.isValid || isSubmitting} className="bg-primary hover:bg-primary/90 text-primary-foreground">
                         {isSubmitting ? <Loader2 className="animate-spin" /> : 'Confirm & Send'}
                       </Button>
                     </DialogFooter>
@@ -217,3 +217,5 @@ export function OrderForm() {
     </Form>
   );
 }
+
+    
