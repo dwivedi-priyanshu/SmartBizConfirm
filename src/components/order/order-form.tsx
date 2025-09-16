@@ -12,7 +12,7 @@ import { PlusCircle, Trash2, Eye } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { InvoicePreview } from "./invoice-preview";
 import { useToast } from "@/hooks/use-toast";
-import { useEffect } from "react";
+import { useMemo } from "react";
 
 const defaultValues: OrderFormValues = {
   customerName: "",
@@ -38,12 +38,12 @@ export function OrderForm() {
   const watchedItems = form.watch("items");
   const watchedTaxRate = form.watch("taxRate");
 
-  const [subtotal, taxAmount, total] = useEffect(() => {
+  const [subtotal, taxAmount, total] = useMemo(() => {
     const newSubtotal = watchedItems.reduce((acc, item) => acc + (item.quantity || 0) * (item.price || 0), 0);
     const newTaxAmount = newSubtotal * ((watchedTaxRate || 0) / 100);
     const newTotal = newSubtotal + newTaxAmount;
     return [newSubtotal, newTaxAmount, newTotal];
-  }, [watchedItems, watchedTaxRate]) || [0, 0, 0];
+  }, [watchedItems, watchedTaxRate]);
 
 
   function onSubmit(data: OrderFormValues) {
