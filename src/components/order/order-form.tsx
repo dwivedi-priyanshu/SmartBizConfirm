@@ -56,7 +56,24 @@ export function OrderForm() {
 
   async function onSubmit(data: OrderFormValues) {
     setIsSubmitting(true);
-    const result = await createOrderAction(data);
+    
+    // Filter out empty items before submitting
+    const processedData = {
+      ...data,
+      items: data.items.filter(item => item.name.trim() !== "" || item.price > 0),
+    };
+
+    if (processedData.items.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "Order Failed",
+        description: "Please add at least one valid item to the order.",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    const result = await createOrderAction(processedData);
     setIsSubmitting(false);
 
     if (result.success) {
@@ -203,7 +220,7 @@ export function OrderForm() {
                        <DialogClose asChild>
                         <Button type="button" variant="outline">Edit</Button>
                       </DialogClose>
-                       <Button type="submit" onClick={() => form.handleSubmit(onSubmit)()} disabled={!form.formState.isValid || isSubmitting} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                       <Button type="submit" onClick={form.handleSubmit(onSubmit)} disabled={!form.formState.isValid || isSubmitting} className="bg-primary hover:bg-primary/90 text-primary-foreground">
                         {isSubmitting ? <Loader2 className="animate-spin" /> : 'Confirm & Send'}
                       </Button>
                     </DialogFooter>
@@ -217,5 +234,7 @@ export function OrderForm() {
     </Form>
   );
 }
+
+    
 
     
