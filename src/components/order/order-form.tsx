@@ -25,6 +25,10 @@ const defaultValues: OrderFormValues = {
   taxRate: 8,
 };
 
+const StyledCard = ({className, ...props}: React.ComponentProps<typeof Card>) => (
+    <Card className={cn("bg-card/60 backdrop-blur-sm border-border/50 transition-all duration-300 hover:border-border", className)} {...props} />
+)
+
 export function OrderForm() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -69,10 +73,6 @@ export function OrderForm() {
       });
     }
   }
-
-  const StyledCard = ({className, ...props}: React.ComponentProps<typeof Card>) => (
-      <Card className={cn("bg-card/60 backdrop-blur-sm border-border/50 transition-all duration-300 hover:border-border", className)} {...props} />
-  )
 
   return (
     <Form {...form}>
