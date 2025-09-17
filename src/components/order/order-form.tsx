@@ -145,14 +145,14 @@ export function OrderForm() {
                     <FormField control={form.control} name={`items.${index}.quantity`} render={({ field }) => (
                       <FormItem className="col-span-4 sm:col-span-2">
                         <FormLabel className={index !== 0 ? 'sr-only' : ''}>Qty</FormLabel>
-                        <FormControl><Input type="text" inputMode="decimal" placeholder="1" {...field} /></FormControl>
+                        <FormControl><Input type="text" inputMode="decimal" {...field} onChange={e => field.onChange(e.target.value)} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={form.control} name={`items.${index}.price`} render={({ field }) => (
                       <FormItem className="col-span-5 sm:col-span-3">
                         <FormLabel className={index !== 0 ? 'sr-only' : ''}>Price</FormLabel>
-                        <FormControl><Input type="text" inputMode="decimal" placeholder="12500.00" {...field} /></FormControl>
+                        <FormControl><Input type="text" inputMode="decimal" {...field} onChange={e => field.onChange(e.target.value)} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -220,7 +220,7 @@ export function OrderForm() {
                        <DialogClose asChild>
                         <Button type="button" variant="outline">Edit</Button>
                       </DialogClose>
-                       <Button type="submit" onClick={form.handleSubmit(onSubmit)} disabled={!form.formState.isValid || isSubmitting} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                       <Button type="submit" disabled={!form.formState.isValid || isSubmitting} className="bg-primary hover:bg-primary/90 text-primary-foreground">
                         {isSubmitting ? <Loader2 className="animate-spin" /> : 'Confirm & Send'}
                       </Button>
                     </DialogFooter>
