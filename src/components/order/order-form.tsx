@@ -17,7 +17,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useMemo, useState } from "react";
 import { createOrderAction } from "@/app/order/actions";
 import { cn } from "@/lib/utils";
-import { generateInvoicePdf } from "@/lib/pdf-generator";
 
 const defaultValues: OrderFormValues = {
   customerName: "",
@@ -82,10 +81,12 @@ export function OrderForm() {
     if (result.success && result.data) {
       toast({
         title: "Order Confirmed!",
-        description: result.data.message || `Your order (ID: ${result.data.confirmationId}) has been processed.`,
+        description: result.data.message || `Your order (ID: ${result.data.confirmationId}) has been processed. A confirmation has been sent via WhatsApp.`,
       });
       
-      generateInvoicePdf(processedData, result.data.confirmationId);
+      // The PDF is now generated and sent on the server.
+      // We no longer need to call the client-side generator.
+      // generateInvoicePdf(processedData, result.data.confirmationId);
 
       form.reset(defaultValues);
       setIsPreviewOpen(false);
@@ -126,8 +127,8 @@ export function OrderForm() {
                   )} />
                   <FormField control={form.control} name="customerPhone" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Phone</FormLabel>
-                      <FormControl><Input type="tel" placeholder="+91 12345 67890" {...field} /></FormControl>
+                      <FormLabel>Phone (with country code)</FormLabel>
+                      <FormControl><Input type="tel" placeholder="+911234567890" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />

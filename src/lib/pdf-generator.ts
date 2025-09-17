@@ -3,7 +3,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import type { OrderFormValues } from './types';
 
-export function generateInvoicePdf(data: OrderFormValues, confirmationId: string) {
+function createPdf(data: OrderFormValues, confirmationId: string) {
   const doc = new jsPDF();
 
   const subtotal = data.items.reduce((acc, item) => acc + item.quantity * item.price, 0);
@@ -76,6 +76,17 @@ export function generateInvoicePdf(data: OrderFormValues, confirmationId: string
   doc.setFontSize(8);
   doc.text('Thank you for your business!', 105, 280, { align: 'center'});
 
+  return doc;
+}
+
+export function generateInvoicePdf(data: OrderFormValues, confirmationId: string) {
+  const doc = createPdf(data, confirmationId);
   // Save the PDF
   doc.save(`Invoice-${confirmationId}.pdf`);
+}
+
+export async function generateInvoicePdfBuffer(data: OrderFormValues, confirmationId: string): Promise<Buffer> {
+    const doc = createPdf(data, confirmationId);
+    const pdfOutput = doc.output('arraybuffer');
+    return Buffer.from(pdfOutput);
 }
