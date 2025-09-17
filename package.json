@@ -47,6 +47,7 @@
     "lucide-react": "^0.475.0",
     "mongodb": "^6.8.0",
     "next": "15.3.3",
+    "papaparse": "^5.5.3",
     "patch-package": "^8.0.0",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
@@ -57,11 +58,12 @@
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.165.0",
+    "twilio": "4.23.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
     "@types/node": "^20",
-    "@types/papaparse": "^5.3.14",
+    "@types/papaparse": "^5.3.16",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/three": "^0.165.0",
