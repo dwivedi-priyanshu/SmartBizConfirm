@@ -33,6 +33,7 @@ const StyledCard = ({className, ...props}: React.ComponentProps<typeof Card>) =>
 export function OrderForm() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
@@ -83,6 +84,7 @@ export function OrderForm() {
         description: result.data?.message || `Your order (ID: ${result.data?.confirmationId}) has been processed.`,
       });
       form.reset(defaultValues);
+      setIsPreviewOpen(false);
     } else {
       toast({
         variant: "destructive",
@@ -206,7 +208,7 @@ export function OrderForm() {
                 </div>
               </CardContent>
               <CardFooter>
-                 <Dialog>
+                 <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
                   <DialogTrigger asChild>
                     <Button type="button" className="w-full" variant="secondary">
                       <Eye className="mr-2 h-4 w-4" /> Preview Order
