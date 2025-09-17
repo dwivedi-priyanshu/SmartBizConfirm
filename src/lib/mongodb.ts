@@ -5,10 +5,7 @@ if (!process.env.MONGODB_URI) {
 }
 
 const uri = process.env.MONGODB_URI
-const options = {
-  tls: true,
-  tlsVersion: 'TLSv1.2',
-}
+const options = {}
 
 let client
 let clientPromise: Promise<MongoClient>
