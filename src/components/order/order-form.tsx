@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,6 +33,7 @@ const StyledCard = ({className, ...props}: React.ComponentProps<typeof Card>) =>
 export function OrderForm() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
@@ -57,10 +59,10 @@ export function OrderForm() {
   async function onSubmit(data: OrderFormValues) {
     setIsSubmitting(true);
     
-    // Filter out empty items before submitting
+    // Filter out empty or zero-price items before submitting
     const processedData = {
       ...data,
-      items: data.items.filter(item => item.name.trim() !== ""),
+      items: data.items.filter(item => item.name.trim() !== "" && item.price > 0),
     };
 
     if (processedData.items.length === 0) {
@@ -82,6 +84,7 @@ export function OrderForm() {
         description: result.data?.message || `Your order (ID: ${result.data?.confirmationId}) has been processed.`,
       });
       form.reset(defaultValues);
+      setIsPreviewOpen(false);
     } else {
       toast({
         variant: "destructive",
@@ -93,7 +96,7 @@ export function OrderForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form id="order-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-8">
             <StyledCard>
@@ -145,14 +148,14 @@ export function OrderForm() {
                     <FormField control={form.control} name={`items.${index}.quantity`} render={({ field }) => (
                       <FormItem className="col-span-4 sm:col-span-2">
                         <FormLabel className={index !== 0 ? 'sr-only' : ''}>Qty</FormLabel>
-                        <FormControl><Input type="text" inputMode="decimal" placeholder="1" {...field} /></FormControl>
+                        <FormControl><Input type="text" inputMode="decimal" {...field} onChange={e => field.onChange(e.target.value)} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={form.control} name={`items.${index}.price`} render={({ field }) => (
                       <FormItem className="col-span-5 sm:col-span-3">
                         <FormLabel className={index !== 0 ? 'sr-only' : ''}>Price</FormLabel>
-                        <FormControl><Input type="text" inputMode="decimal" placeholder="12500.00" {...field} /></FormControl>
+                        <FormControl><Input type="text" inputMode="decimal" {...field} onChange={e => field.onChange(e.target.value)} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -188,7 +191,7 @@ export function OrderForm() {
                   <div className="w-24">
                     <FormField control={form.control} name="taxRate" render={({ field }) => (
                       <FormItem>
-                        <FormControl><Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} className="text-right bg-transparent" /></FormControl>
+                        <FormControl><Input type="text" inputMode="decimal" {...field} onChange={e => field.onChange(e.target.value)} className="text-right bg-transparent" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -205,7 +208,7 @@ export function OrderForm() {
                 </div>
               </CardContent>
               <CardFooter>
-                 <Dialog>
+                 <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
                   <DialogTrigger asChild>
                     <Button type="button" className="w-full" variant="secondary">
                       <Eye className="mr-2 h-4 w-4" /> Preview Order
@@ -220,7 +223,7 @@ export function OrderForm() {
                        <DialogClose asChild>
                         <Button type="button" variant="outline">Edit</Button>
                       </DialogClose>
-                       <Button type="submit" onClick={form.handleSubmit(onSubmit)} disabled={!form.formState.isValid || isSubmitting} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                       <Button form="order-form" type="submit" disabled={!form.formState.isValid || isSubmitting} className="bg-primary hover:bg-primary/90 text-primary-foreground">
                         {isSubmitting ? <Loader2 className="animate-spin" /> : 'Confirm & Send'}
                       </Button>
                     </DialogFooter>

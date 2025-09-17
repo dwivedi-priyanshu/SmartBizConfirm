@@ -57,21 +57,21 @@ const processOrderFlow = ai.defineFlow(
   },
   async (input) => {
     let output: ProcessOrderOutput | null = null;
-    try {
-      const res = await prompt(input);
-      output = res.output ?? null;
-    } catch (err) {
-      // fall through to local fallback
-    }
 
+    try {
+      // First, try to get the confirmation from the AI service
+      const llmResponse = await prompt(input);
+      output = llmResponse.output;
+    } catch (error) {
+      console.warn('AI service failed, generating fallback confirmation.', error);
+    }
+    
+    // If the AI service fails for any reason, create a fallback output
     if (!output) {
-      const randomId = Array.from({ length: 8 })
-        .map(() => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[Math.floor(Math.random() * 36)])
-        .join('');
-      const confirmationId = `ORD-${randomId}`;
+      const fallbackId = `ORD-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
       output = {
-        confirmationId,
-        message: `Thanks ${input.customerName}! Your order has been received. Confirmation: ${confirmationId}.`,
+        confirmationId: fallbackId,
+        message: `Order confirmed for ${input.customerName}. Your confirmation ID is ${fallbackId}.`
       };
     }
 
@@ -82,6 +82,7 @@ const processOrderFlow = ai.defineFlow(
     await addOrder({
         id: output.confirmationId,
         customerName: input.customerName,
+        customerEmail: input.customerEmail,
         date: new Date().toISOString(),
         total: total,
         status: 'Confirmed'

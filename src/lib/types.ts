@@ -17,6 +17,7 @@ export type OrderFormValues = z.infer<typeof formSchema>;
 export type Order = {
   id: string;
   customerName: string;
+  customerEmail: string;
   date: string;
   total: number;
   status: 'Pending' | 'Confirmed' | 'Shipped' | 'Cancelled';
