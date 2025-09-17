@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMemo, useState } from "react";
 import { createOrderAction } from "@/app/order/actions";
 import { cn } from "@/lib/utils";
+import { generateInvoicePdf } from "@/lib/pdf-generator";
 
 const defaultValues: OrderFormValues = {
   customerName: "",
@@ -78,11 +79,14 @@ export function OrderForm() {
     const result = await createOrderAction(processedData);
     setIsSubmitting(false);
 
-    if (result.success) {
+    if (result.success && result.data) {
       toast({
         title: "Order Confirmed!",
-        description: result.data?.message || `Your order (ID: ${result.data?.confirmationId}) has been processed.`,
+        description: result.data.message || `Your order (ID: ${result.data.confirmationId}) has been processed.`,
       });
+      
+      generateInvoicePdf(processedData, result.data.confirmationId);
+
       form.reset(defaultValues);
       setIsPreviewOpen(false);
     } else {
