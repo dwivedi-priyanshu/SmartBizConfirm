@@ -94,7 +94,7 @@ export function OrderForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form id="order-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-8">
             <StyledCard>
@@ -221,7 +221,7 @@ export function OrderForm() {
                        <DialogClose asChild>
                         <Button type="button" variant="outline">Edit</Button>
                       </DialogClose>
-                       <Button type="submit" disabled={!form.formState.isValid || isSubmitting} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                       <Button form="order-form" type="submit" disabled={!form.formState.isValid || isSubmitting} className="bg-primary hover:bg-primary/90 text-primary-foreground">
                         {isSubmitting ? <Loader2 className="animate-spin" /> : 'Confirm & Send'}
                       </Button>
                     </DialogFooter>
