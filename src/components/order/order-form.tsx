@@ -188,7 +188,7 @@ export function OrderForm() {
                   <div className="w-24">
                     <FormField control={form.control} name="taxRate" render={({ field }) => (
                       <FormItem>
-                        <FormControl><Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} className="text-right bg-transparent" /></FormControl>
+                        <FormControl><Input type="text" inputMode="decimal" {...field} onChange={e => field.onChange(e.target.value)} className="text-right bg-transparent" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -234,3 +234,5 @@ export function OrderForm() {
     </Form>
   );
 }
+
+    
