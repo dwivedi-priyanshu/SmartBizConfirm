@@ -56,10 +56,23 @@ const processOrderFlow = ai.defineFlow(
     outputSchema: ProcessOrderOutputSchema,
   },
   async (input) => {
-    const {output} = await prompt(input);
+    let output: ProcessOrderOutput | null = null;
 
+    try {
+      // First, try to get the confirmation from the AI service
+      const llmResponse = await prompt(input);
+      output = llmResponse.output;
+    } catch (error) {
+      console.warn('AI service failed, generating fallback confirmation.', error);
+    }
+    
+    // If the AI service fails for any reason, create a fallback output
     if (!output) {
-      throw new Error('Failed to process order.');
+      const fallbackId = `ORD-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
+      output = {
+        confirmationId: fallbackId,
+        message: `Order confirmed for ${input.customerName}. Your confirmation ID is ${fallbackId}.`
+      };
     }
 
     const subtotal = input.items.reduce((acc, item) => acc + item.quantity * item.price, 0);
