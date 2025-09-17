@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -57,10 +58,10 @@ export function OrderForm() {
   async function onSubmit(data: OrderFormValues) {
     setIsSubmitting(true);
     
-    // Filter out empty items before submitting
+    // Filter out empty or zero-price items before submitting
     const processedData = {
       ...data,
-      items: data.items.filter(item => item.name.trim() !== ""),
+      items: data.items.filter(item => item.name.trim() !== "" && item.price > 0),
     };
 
     if (processedData.items.length === 0) {
@@ -234,5 +235,3 @@ export function OrderForm() {
     </Form>
   );
 }
-
-    
