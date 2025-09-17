@@ -59,7 +59,6 @@ export function OrderForm() {
   async function onSubmit(data: OrderFormValues) {
     setIsSubmitting(true);
     
-    // Filter out empty or zero-price items before submitting
     const processedData = {
       ...data,
       items: data.items.filter(item => item.name.trim() !== "" && item.price > 0),
@@ -84,10 +83,6 @@ export function OrderForm() {
         description: result.data.message || `Your order (ID: ${result.data.confirmationId}) has been processed. A confirmation has been sent via WhatsApp.`,
       });
       
-      // The PDF is now generated and sent on the server.
-      // We no longer need to call the client-side generator.
-      // generateInvoicePdf(processedData, result.data.confirmationId);
-
       form.reset(defaultValues);
       setIsPreviewOpen(false);
     } else {
