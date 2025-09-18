@@ -1,6 +1,6 @@
 "use client";
 
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line, Area, AreaChart } from 'recharts';
 
 interface SalesChartProps {
   data: { date: string; sales: number }[];
@@ -10,7 +10,7 @@ export function SalesChart({ data }: SalesChartProps) {
   return (
     <div className="h-[300px]">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data}>
+        <AreaChart data={data}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} />
           <XAxis
             dataKey="date"
@@ -36,8 +36,14 @@ export function SalesChart({ data }: SalesChartProps) {
             }}
             labelStyle={{ color: "hsl(var(--foreground))" }}
           />
-          <Bar dataKey="sales" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-        </BarChart>
+          <defs>
+            <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.6} />
+              <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.05} />
+            </linearGradient>
+          </defs>
+          <Area type="monotone" dataKey="sales" stroke="hsl(var(--primary))" fillOpacity={1} fill="url(#salesGradient)" />
+        </AreaChart>
       </ResponsiveContainer>
     </div>
   );

@@ -15,12 +15,15 @@ export const formSchema = z.object({
 export type OrderFormValues = z.infer<typeof formSchema>;
 
 export type Order = {
+  _id?: string;
   id: string;
   customerName: string;
   customerEmail: string;
   customerPhone?: string;
   items?: { name: string; quantity: number; price: number }[];
   taxRate?: number;
+  subtotal?: number;
+  taxAmount?: number;
   date: string;
   total: number;
   status: 'Pending' | 'Confirmed' | 'Shipped' | 'Cancelled';
