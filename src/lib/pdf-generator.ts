@@ -3,11 +3,19 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import type { OrderFormValues } from './types';
 
+function toSafeText(value: unknown): string {
+  if (value === null || value === undefined) return '';
+  const s = String(value);
+  return s;
+}
+
 function createPdf(data: OrderFormValues, confirmationId: string) {
   const doc = new jsPDF();
 
-  const subtotal = data.items.reduce((acc, item) => acc + item.quantity * item.price, 0);
-  const taxAmount = subtotal * (data.taxRate / 100);
+  const items = Array.isArray(data.items) ? data.items : [];
+  const taxRateNum = Number(data.taxRate || 0) || 0;
+  const subtotal = items.reduce((acc, item) => acc + Number(item.quantity || 0) * Number(item.price || 0), 0);
+  const taxAmount = subtotal * (taxRateNum / 100);
   const total = subtotal + taxAmount;
 
   // Header
@@ -29,21 +37,21 @@ function createPdf(data: OrderFormValues, confirmationId: string) {
   doc.setFontSize(12);
   doc.text('Bill To:', 14, 55);
   doc.setFontSize(10);
-  doc.text(data.customerName, 14, 62);
-  doc.text(data.customerEmail, 14, 67);
-  doc.text(data.customerPhone, 14, 72);
+  doc.text(toSafeText(data.customerName), 14, 62);
+  doc.text(toSafeText(data.customerEmail), 14, 67);
+  doc.text(toSafeText((data as any).customerPhone ?? ''), 14, 72);
   doc.line(14, 80, 196, 80);
 
   // Table
   const tableColumn = ["Item", "Quantity", "Unit Price", "Total"];
   const tableRows = [];
 
-  data.items.forEach(item => {
+  items.forEach(item => {
     const itemData = [
-      item.name,
-      item.quantity,
-      `$${item.price.toFixed(2)}`,
-      `$${(item.quantity * item.price).toFixed(2)}`
+      toSafeText(item.name),
+      String(Number(item.quantity || 0)),
+      `$${Number(item.price || 0).toFixed(2)}`,
+      `$${(Number(item.quantity || 0) * Number(item.price || 0)).toFixed(2)}`
     ];
     tableRows.push(itemData);
   });
@@ -62,15 +70,15 @@ function createPdf(data: OrderFormValues, confirmationId: string) {
   doc.setFontSize(10);
 
   let yPos = finalY + 10;
-  doc.text(`Subtotal: $${subtotal.toFixed(2)}`, 190, yPos, { align: 'right' });
+  doc.text(`Subtotal: $${subtotal.toFixed(2)}` as any, 190, yPos, { align: 'right' } as any);
   
   yPos += 7;
-  doc.text(`Tax (${data.taxRate}%): $${taxAmount.toFixed(2)}`, 190, yPos, { align: 'right' });
+  doc.text(`Tax (${taxRateNum}%): $${taxAmount.toFixed(2)}` as any, 190, yPos, { align: 'right' } as any);
   
   yPos += 7;
   doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
-  doc.text(`Total: $${total.toFixed(2)}`, 190, yPos, { align: 'right' });
+  doc.text(`Total: $${total.toFixed(2)}` as any, 190, yPos, { align: 'right' } as any);
 
   // Footer
   doc.setFontSize(8);

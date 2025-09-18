@@ -1,17 +1,14 @@
 import { getOrderById } from '@/lib/order-service';
 import { Separator } from '@/components/ui/separator';
 
-interface InvoicePageProps {
-  params: { id: string };
-}
-
-export default async function InvoicePage({ params }: InvoicePageProps) {
-  const order = await getOrderById(params.id);
+export default async function InvoicePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const order = await getOrderById(id);
   if (!order) {
     return (
       <div className="container mx-auto p-6">
         <h1 className="text-2xl font-bold">Invoice not found</h1>
-        <p className="text-muted-foreground">No order with ID {params.id}.</p>
+        <p className="text-muted-foreground">No order with ID {id}.</p>
       </div>
     );
   }

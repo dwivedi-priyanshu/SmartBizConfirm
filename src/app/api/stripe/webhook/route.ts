@@ -4,6 +4,8 @@ import { getOrderById } from '@/lib/order-service';
 import { buildInvoiceHtml } from '@/lib/invoice-email';
 import { sendMail } from '@/lib/mailer';
 import { placeConfirmationCall, toE164, sendWhatsAppMessage, toWhatsAppE164 } from '@/lib/twilio';
+import { generateInvoicePdfBuffer } from '@/lib/pdf-generator';
+import { uploadInvoicePdf } from '@/lib/cloudinary';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-06-20',
@@ -42,8 +44,21 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Order not found' }, { status: 404 });
       }
 
-      // Send email invoice
+      // Generate PDF and upload to Cloudinary
       try {
+        const pdfBuffer = await generateInvoicePdfBuffer(
+          {
+            customerName: order.customerName,
+            customerEmail: order.customerEmail,
+            customerPhone: order.customerPhone || '',
+            items: order.items || [],
+            taxRate: order.taxRate || 0,
+          } as any,
+          order.id
+        );
+        const cloudinaryUrl = await uploadInvoicePdf(pdfBuffer, `invoice-${order.id}`);
+
+        // Send email with HTML invoice and attach Cloudinary link
         const html = buildInvoiceHtml({
           customerName: order.customerName,
           customerEmail: order.customerEmail,
@@ -52,12 +67,13 @@ export async function POST(req: NextRequest) {
           taxRate: order.taxRate || 0,
           confirmationId: order.id,
         });
+        const htmlWithLink = `${html}<p style="margin-top:16px">Download PDF: <a href="${cloudinaryUrl}">${cloudinaryUrl}</a></p>`;
         await sendMail({
           to: order.customerEmail,
           subject: `Your Invoice - Order ${order.id}`,
-          html,
+          html: htmlWithLink,
         });
-        console.log('Invoice email sent for order:', orderId);
+        console.log('Invoice PDF uploaded and email sent for order:', orderId);
       } catch (mailError) {
         console.error('Failed to send invoice email:', mailError);
       }
@@ -84,8 +100,25 @@ export async function POST(req: NextRequest) {
         try {
           const whatsappPhone = toWhatsAppE164(order.customerPhone);
           if (whatsappPhone) {
-            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '';
-            const invoiceUrl = baseUrl ? `${baseUrl}/invoice/${order.id}` : '';
+            // Use Cloudinary link for PDF if available
+            // Re-uploading would be redundant; in practice we would persist the URL.
+            // Here, we generate and upload again to ensure availability.
+            let invoiceUrl = '';
+            try {
+              const pdfBuffer = await generateInvoicePdfBuffer(
+                {
+                  customerName: order.customerName,
+                  customerEmail: order.customerEmail,
+                  customerPhone: order.customerPhone || '',
+                  items: order.items || [],
+                  taxRate: order.taxRate || 0,
+                } as any,
+                order.id
+              );
+              invoiceUrl = await uploadInvoicePdf(pdfBuffer, `invoice-${order.id}`);
+            } catch (e) {
+              console.warn('Failed to prepare Cloudinary invoice for WhatsApp; skipping link', e);
+            }
             
             const subtotal = (order.items || []).reduce((acc, item) => acc + item.quantity * item.price, 0);
             const taxRate = order.taxRate || 0;
@@ -106,7 +139,7 @@ Subtotal: ₹${subtotal.toFixed(2)}
 Tax (${taxRate}%): ₹${taxAmount.toFixed(2)}
 *Total: ₹${total.toFixed(2)}*
 
-${invoiceUrl ? `View invoice: ${invoiceUrl}\n\n` : ''}Thank you for choosing Smart Biz Confirm! 🎉`;
+${invoiceUrl ? `Download invoice PDF: ${invoiceUrl}\n\n` : ''}Thank you for choosing Smart Biz Confirm! 🎉`;
 
             await sendWhatsAppMessage({
               toPhoneE164: whatsappPhone,
