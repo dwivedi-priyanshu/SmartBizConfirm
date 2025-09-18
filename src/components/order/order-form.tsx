@@ -79,12 +79,17 @@ export function OrderForm() {
     setIsSubmitting(false);
 
     if (result.success) {
-      toast({
-        title: "Order Confirmed!",
-        description: result.data?.message || `Your order (ID: ${result.data?.confirmationId}) has been processed.`,
-      });
-      form.reset(defaultValues);
-      setIsPreviewOpen(false);
+      if (result.checkoutUrl) {
+        // Redirect to Stripe checkout
+        window.location.href = result.checkoutUrl;
+      } else {
+        toast({
+          title: "Order Confirmed!",
+          description: result.data?.message || `Your order (ID: ${result.data?.confirmationId}) has been processed.`,
+        });
+        form.reset(defaultValues);
+        setIsPreviewOpen(false);
+      }
     } else {
       toast({
         variant: "destructive",

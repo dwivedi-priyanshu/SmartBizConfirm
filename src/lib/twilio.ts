@@ -53,4 +53,36 @@ export async function placeConfirmationCall({ toPhoneE164, confirmationId, custo
   });
 }
 
+type SendWhatsAppParams = {
+  toPhoneE164: string;
+  message: string;
+  mediaUrl?: string;
+};
+
+export async function sendWhatsAppMessage({ toPhoneE164, message, mediaUrl }: SendWhatsAppParams) {
+  const fromNumber = process.env.TWILIO_WHATSAPP_FROM;
+  if (!fromNumber) {
+    throw new Error('Missing TWILIO_WHATSAPP_FROM env var.');
+  }
+
+  const client = getTwilioClient();
+  
+  const messageData: any = {
+    to: `whatsapp:${toPhoneE164}`,
+    from: fromNumber,
+    body: message,
+  };
+
+  if (mediaUrl) {
+    messageData.mediaUrl = [mediaUrl];
+  }
+
+  return client.messages.create(messageData);
+}
+
+export function toWhatsAppE164(phone: string): string | null {
+  const e164 = toE164(phone);
+  return e164 ? e164 : null;
+}
+
 

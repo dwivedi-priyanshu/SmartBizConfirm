@@ -18,6 +18,9 @@ export type Order = {
   id: string;
   customerName: string;
   customerEmail: string;
+  customerPhone?: string;
+  items?: { name: string; quantity: number; price: number }[];
+  taxRate?: number;
   date: string;
   total: number;
   status: 'Pending' | 'Confirmed' | 'Shipped' | 'Cancelled';

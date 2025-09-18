@@ -27,3 +27,11 @@ export async function addOrder(newOrder: Omit<Order, '_id'>): Promise<void> {
   const ordersCollection = await getOrdersCollection();
   await ordersCollection.insertOne(newOrder as Order);
 }
+
+export async function getOrderById(id: string): Promise<Order | null> {
+  const ordersCollection = await getOrdersCollection();
+  const order = await ordersCollection.findOne({ id });
+  if (!order) return null;
+  // @ts-ignore
+  return { ...order, _id: order._id?.toString?.() } as Order;
+}

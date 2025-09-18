@@ -83,6 +83,9 @@ const processOrderFlow = ai.defineFlow(
         id: output.confirmationId,
         customerName: input.customerName,
         customerEmail: input.customerEmail,
+        customerPhone: input.customerPhone,
+        items: input.items,
+        taxRate: input.taxRate,
         date: new Date().toISOString(),
         total: total,
         status: 'Confirmed'
