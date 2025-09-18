@@ -33,7 +33,7 @@ export function OrdersTable({ orders }: OrdersTableProps) {
       </TableHeader>
       <TableBody>
         {orders.map((order) => (
-          <TableRow key={order.id}>
+          <TableRow key={order._id ?? order.id}>
             <TableCell className="font-medium">{order.id}</TableCell>
             <TableCell>{order.customerName}</TableCell>
             <TableCell>{new Date(order.date).toLocaleDateString('en-IN')}</TableCell>
