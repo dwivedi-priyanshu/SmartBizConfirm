@@ -4,7 +4,7 @@ import { Header } from '@/components/layout/header';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'SmartBiz Confirm',
+  title: 'receptio',
   description: 'Multi-Channel Order Confirmation & Invoicing',
 };
 

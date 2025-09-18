@@ -10,12 +10,12 @@ export function Header() {
           <Link href="/" className="flex items-center space-x-2">
             <Package2 className="h-6 w-6 text-primary" />
             <span className="font-bold sm:inline-block">
-              SmartBiz Confirm
+              receptio
             </span>
           </Link>
         </div>
         
-        <nav className="hidden items-center justify-center space-x-6 text-sm font-medium md:flex">
+        <nav className="flex-1 flex items-center justify-center space-x-6 text-sm font-medium">
           <Link
             href="/dashboard"
             className="transition-colors hover:text-foreground/80 text-foreground/60"
