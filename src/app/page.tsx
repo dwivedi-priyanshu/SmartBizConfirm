@@ -10,7 +10,7 @@ export default function Home() {
         <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
           SmartBiz OmniConfirm
         </h1>
-        <p className="max-w-[700px] text-lg text-muted-foreground sm:text-xl">
+        <p className="max-w-[700px] text-lg text-foreground/80 sm:text-xl">
           Multi-Channel Order Confirmation & Invoicing
         </p>
         <Button asChild size="lg">

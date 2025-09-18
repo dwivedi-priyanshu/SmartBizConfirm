@@ -9,7 +9,7 @@ export function Header() {
         <div className="mr-4 flex flex-1 items-center">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Package2 className="h-6 w-6 text-primary" />
-            <span className="hidden font-bold sm:inline-block">
+            <span className="font-bold sm:inline-block">
               SmartBiz Confirm
             </span>
           </Link>
@@ -22,7 +22,7 @@ export function Header() {
             </Link>
             <Link
               href="/order"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
+              className="transition-colors hover:text-foreground/80 text-foreground"
             >
               New Order
             </Link>

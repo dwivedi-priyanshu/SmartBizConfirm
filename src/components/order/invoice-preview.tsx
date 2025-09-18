@@ -2,7 +2,7 @@ import { OrderFormValues } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from "@/components/ui/table";
-import { Sparkles } from "lucide-react";
+import { Package } from "lucide-react";
 
 interface InvoicePreviewProps {
   data: OrderFormValues;
@@ -15,9 +15,9 @@ export function InvoicePreview({ data }: InvoicePreviewProps) {
 
   return (
     <Card className="shadow-none border-0 max-h-[70vh] overflow-y-auto bg-transparent">
-      <CardHeader className="grid grid-cols-2 gap-4 bg-muted/30 p-6 rounded-lg">
+      <CardHeader className="grid grid-cols-2 gap-4 p-6 rounded-lg">
         <div>
-          <h2 className="font-bold text-lg flex items-center gap-2"><Sparkles className="text-primary h-5 w-5"/>SmartBiz Confirm</h2>
+          <h2 className="font-bold text-lg flex items-center gap-2"><Package className="text-primary h-5 w-5"/>SmartBiz Confirm</h2>
           <p className="text-sm text-muted-foreground">123 Business Rd, Suite 456<br />Businesstown, ST 12345</p>
         </div>
         <div className="text-right">
@@ -36,7 +36,7 @@ export function InvoicePreview({ data }: InvoicePreviewProps) {
         <div className="rounded-lg border">
         <Table>
           <TableHeader>
-            <TableRow className="border-b-border/50">
+            <TableRow>
               <TableHead className="w-[50%]">Item</TableHead>
               <TableHead className="text-center">Quantity</TableHead>
               <TableHead className="text-right">Unit Price</TableHead>
@@ -45,7 +45,7 @@ export function InvoicePreview({ data }: InvoicePreviewProps) {
           </TableHeader>
           <TableBody>
             {data.items.map((item, index) => (
-              <TableRow key={index} className="border-b-border/20 last:border-b-0">
+              <TableRow key={index} className="last:border-b-0">
                 <TableCell className="font-medium">{item.name}</TableCell>
                 <TableCell className="text-center">{item.quantity}</TableCell>
                 <TableCell className="text-right">{item.price.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</TableCell>
@@ -55,7 +55,7 @@ export function InvoicePreview({ data }: InvoicePreviewProps) {
           </TableBody>
         </Table>
         </div>
-        <Separator className="my-6 bg-border/50" />
+        <Separator className="my-6" />
         <div className="flex justify-end">
             <div className="w-full max-w-sm space-y-3">
                  <div className="flex justify-between">
@@ -66,7 +66,7 @@ export function InvoicePreview({ data }: InvoicePreviewProps) {
                     <span className="text-muted-foreground">Tax ({data.taxRate}%)</span>
                     <span>{taxAmount.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
                 </div>
-                <Separator className="my-2 bg-border/50" />
+                <Separator className="my-2" />
                  <div className="flex justify-between font-bold text-xl">
                     <span>Total</span>
                     <span>{total.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
