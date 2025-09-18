@@ -73,14 +73,18 @@ export function OrderForm() {
     const result = await createOrderAction(processedData);
     setIsSubmitting(false);
 
-    if (result.success && result.data) {
-      toast({
-        title: "Order Confirmed!",
-        description: result.data.message || `Your order (ID: ${result.data.confirmationId}) has been processed. A confirmation has been sent via WhatsApp.`,
-      });
-      
-      form.reset(defaultValues);
-      setIsPreviewOpen(false);
+    if (result.success) {
+      if (result.checkoutUrl) {
+        // Redirect to Stripe checkout
+        window.location.href = result.checkoutUrl;
+      } else {
+        toast({
+          title: "Order Confirmed!",
+          description: result.data?.message || `Your order (ID: ${result.data?.confirmationId}) has been processed.`,
+        });
+        form.reset(defaultValues);
+        setIsPreviewOpen(false);
+      }
     } else {
       toast({
         variant: "destructive",
