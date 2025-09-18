@@ -11,6 +11,9 @@ import {ai} from '@/ai/genkit';
 import {z} from 'zod';
 import {formSchema} from '@/lib/types';
 import { addOrder } from '@/lib/order-service';
+import { generateInvoicePdf, generateInvoicePdfBuffer } from '@/lib/pdf-generator';
+import fetch from 'node-fetch';
+import FormData from 'form-data';
 
 const ProcessOrderInputSchema = formSchema;
 export type ProcessOrderInput = z.infer<typeof ProcessOrderInputSchema>;
@@ -48,6 +51,95 @@ Items:
 Tax Rate: {{{taxRate}}}%
 `,
 });
+
+const sendWhatsappMessage = async (customerPhone: string, customerName: string, confirmationId: string, pdfBuffer: Buffer) => {
+    const {
+        META_ACCESS_TOKEN,
+        META_PHONE_NUMBER_ID
+    } = process.env;
+
+    if (!META_ACCESS_TOKEN || !META_PHONE_NUMBER_ID) {
+        console.warn('WhatsApp credentials are not set. Skipping message.');
+        return;
+    }
+
+    try {
+        // 1. Upload the PDF
+        const form = new FormData();
+        form.append('file', pdfBuffer, {
+            filename: `Invoice-${confirmationId}.pdf`,
+            contentType: 'application/pdf',
+        });
+        form.append('type', 'application/pdf');
+        form.append('messaging_product', 'whatsapp');
+
+        const uploadResponse = await fetch(`https://graph.facebook.com/v20.0/${META_PHONE_NUMBER_ID}/media`, {
+            method: 'POST',
+            body: form,
+            headers: {
+                ...form.getHeaders(),
+                'Authorization': `Bearer ${META_ACCESS_TOKEN}`,
+            },
+        });
+
+        const uploadResult = await uploadResponse.json() as { id?: string, error?: any};
+
+        if (uploadResult.error || !uploadResult.id) {
+            console.error('Failed to upload PDF to WhatsApp:', uploadResult.error || 'No media ID returned.');
+            return;
+        }
+
+        const mediaId = uploadResult.id;
+
+        // 2. Send the message template
+        const messageResponse = await fetch(`https://graph.facebook.com/v20.0/${META_PHONE_NUMBER_ID}/messages`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${META_ACCESS_TOKEN}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                messaging_product: 'whatsapp',
+                to: customerPhone,
+                type: 'template',
+                template: {
+                    name: 'order_confirmation_pdf',
+                    language: {
+                        code: 'en_US'
+                    },
+                    components: [{
+                        type: 'header',
+                        parameters: [{
+                            type: 'document',
+                            document: {
+                                id: mediaId,
+                                filename: `Invoice-${confirmationId}.pdf`
+                            },
+                        }, ],
+                    }, {
+                        type: 'body',
+                        parameters: [{
+                            type: 'text',
+                            text: customerName
+                        }, {
+                            type: 'text',
+                            text: confirmationId
+                        }, ],
+                    }, ],
+                },
+            }),
+        });
+
+        const messageResult = await messageResponse.json();
+        if (messageResult.error) {
+            console.error('Failed to send WhatsApp message:', messageResult.error);
+        } else {
+            console.log('WhatsApp message sent successfully:', messageResult);
+        }
+    } catch (error) {
+        console.error('An error occurred in sendWhatsappMessage:', error);
+    }
+}
 
 const processOrderFlow = ai.defineFlow(
   {
@@ -89,6 +181,13 @@ const processOrderFlow = ai.defineFlow(
         date: new Date().toISOString(),
         total: total,
         status: 'Confirmed'
+    });
+
+    const pdfBuffer = await generateInvoicePdfBuffer(input, output.confirmationId);
+
+    // Don't wait for the WhatsApp message to be sent to return the response
+    sendWhatsappMessage(input.customerPhone, input.customerName, output.confirmationId, pdfBuffer).catch(err => {
+        console.error("Failed to send WhatsApp message in background:", err);
     });
     
     return output;

@@ -10,13 +10,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { formSchema, OrderFormValues } from "@/lib/types";
-import { PlusCircle, Trash2, Eye, Loader2, Sparkles } from "lucide-react";
+import { PlusCircle, Trash2, Eye, Loader2, Package } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { InvoicePreview } from "./invoice-preview";
 import { useToast } from "@/hooks/use-toast";
 import { useMemo, useState } from "react";
 import { createOrderAction } from "@/app/order/actions";
-import { cn } from "@/lib/utils";
 
 const defaultValues: OrderFormValues = {
   customerName: "",
@@ -26,14 +25,11 @@ const defaultValues: OrderFormValues = {
   taxRate: 8,
 };
 
-const StyledCard = ({className, ...props}: React.ComponentProps<typeof Card>) => (
-    <Card className={cn("bg-card/60 backdrop-blur-sm border-border/50 transition-all duration-300 hover:border-border", className)} {...props} />
-)
-
 export function OrderForm() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
@@ -59,7 +55,6 @@ export function OrderForm() {
   async function onSubmit(data: OrderFormValues) {
     setIsSubmitting(true);
     
-    // Filter out empty or zero-price items before submitting
     const processedData = {
       ...data,
       items: data.items.filter(item => item.name.trim() !== "" && item.price > 0),
@@ -78,18 +73,14 @@ export function OrderForm() {
     const result = await createOrderAction(processedData);
     setIsSubmitting(false);
 
-    if (result.success) {
-      if (result.checkoutUrl) {
-        // Redirect to Stripe checkout
-        window.location.href = result.checkoutUrl;
-      } else {
-        toast({
-          title: "Order Confirmed!",
-          description: result.data?.message || `Your order (ID: ${result.data?.confirmationId}) has been processed.`,
-        });
-        form.reset(defaultValues);
-        setIsPreviewOpen(false);
-      }
+    if (result.success && result.data) {
+      toast({
+        title: "Order Confirmed!",
+        description: result.data.message || `Your order (ID: ${result.data.confirmationId}) has been processed. A confirmation has been sent via WhatsApp.`,
+      });
+      
+      form.reset(defaultValues);
+      setIsPreviewOpen(false);
     } else {
       toast({
         variant: "destructive",
@@ -104,9 +95,9 @@ export function OrderForm() {
       <form id="order-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-8">
-            <StyledCard>
+            <Card>
               <CardHeader>
-                <CardTitle className="text-3xl flex items-center gap-2"><Sparkles className="text-primary"/>Create New Order</CardTitle>
+                <CardTitle className="text-2xl">Create New Order</CardTitle>
                 <CardDescription>Fill in the details below to create a new order and invoice.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -127,16 +118,16 @@ export function OrderForm() {
                   )} />
                   <FormField control={form.control} name="customerPhone" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Phone</FormLabel>
-                      <FormControl><Input type="tel" placeholder="+91 12345 67890" {...field} /></FormControl>
+                      <FormLabel>Phone (with country code)</FormLabel>
+                      <FormControl><Input type="tel" placeholder="+911234567890" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                 </div>
               </CardContent>
-            </StyledCard>
+            </Card>
 
-            <StyledCard>
+            <Card>
               <CardHeader>
                 <CardTitle>Order Items</CardTitle>
               </CardHeader>
@@ -178,11 +169,11 @@ export function OrderForm() {
                   <PlusCircle className="mr-2 h-4 w-4" /> Add Item
                 </Button>
               </CardContent>
-            </StyledCard>
+            </Card>
           </div>
           
           <div className="lg:col-span-1">
-            <StyledCard className="sticky top-20">
+            <Card className="sticky top-20">
               <CardHeader>
                 <CardTitle>Order Summary</CardTitle>
               </CardHeader>
@@ -196,13 +187,13 @@ export function OrderForm() {
                   <div className="w-24">
                     <FormField control={form.control} name="taxRate" render={({ field }) => (
                       <FormItem>
-                        <FormControl><Input type="text" inputMode="decimal" {...field} onChange={e => field.onChange(e.target.value)} className="text-right bg-transparent" /></FormControl>
+                        <FormControl><Input type="text" inputMode="decimal" {...field} onChange={e => field.onChange(e.target.value)} className="text-right" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                   </div>
                 </div>
-                <Separator className="my-4 bg-border/50" />
+                <Separator className="my-4" />
                 <div className="flex justify-between text-sm text-muted-foreground">
                   <span>Tax</span>
                   <span className="font-medium text-foreground">{taxAmount.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
@@ -219,7 +210,7 @@ export function OrderForm() {
                       <Eye className="mr-2 h-4 w-4" /> Preview Order
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-3xl bg-card/80 backdrop-blur-xl">
+                  <DialogContent className="sm:max-w-3xl">
                     <DialogHeader>
                       <DialogTitle>Invoice Preview</DialogTitle>
                     </DialogHeader>
@@ -228,14 +219,14 @@ export function OrderForm() {
                        <DialogClose asChild>
                         <Button type="button" variant="outline">Edit</Button>
                       </DialogClose>
-                       <Button form="order-form" type="submit" disabled={!form.formState.isValid || isSubmitting} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                       <Button form="order-form" type="submit" disabled={!form.formState.isValid || isSubmitting}>
                         {isSubmitting ? <Loader2 className="animate-spin" /> : 'Confirm & Send'}
                       </Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
               </CardFooter>
-            </StyledCard>
+            </Card>
           </div>
         </div>
       </form>
