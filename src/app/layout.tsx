@@ -4,7 +4,7 @@ import { Header } from '@/components/layout/header';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'receptio',
+  title: 'Receptio',
   description: 'Multi-Channel Order Confirmation & Invoicing',
 };
 

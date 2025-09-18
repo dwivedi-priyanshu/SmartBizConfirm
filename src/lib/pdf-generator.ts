@@ -12,7 +12,7 @@ function createPdf(data: OrderFormValues, confirmationId: string) {
 
   // Header
   doc.setFontSize(20);
-  doc.text('SmartBiz Confirm', 14, 22);
+  doc.text('Receptio', 14, 22);
   doc.setFontSize(10);
   doc.text('123 Business Rd, Suite 456', 14, 30);
   doc.text('Businesstown, ST 12345', 14, 35);

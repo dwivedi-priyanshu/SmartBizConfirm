@@ -8,7 +8,7 @@ export default function Home() {
       <ThreeAnimation />
       <div className="relative z-10 flex flex-col items-center space-y-6 text-center p-4">
         <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
-          receptio
+          Receptio
         </h1>
         <p className="max-w-[700px] text-lg text-foreground/80 sm:text-xl">
           Streamlined Order & Invoice Management

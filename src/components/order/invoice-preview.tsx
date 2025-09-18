@@ -17,7 +17,7 @@ export function InvoicePreview({ data }: InvoicePreviewProps) {
     <Card className="shadow-none border-0 max-h-[70vh] overflow-y-auto bg-transparent">
       <CardHeader className="grid grid-cols-2 gap-4 p-6 rounded-lg">
         <div>
-          <h2 className="font-bold text-lg flex items-center gap-2"><Package className="text-primary h-5 w-5"/>receptio</h2>
+          <h2 className="font-bold text-lg flex items-center gap-2"><Package className="text-primary h-5 w-5"/>Receptio</h2>
           <p className="text-sm text-muted-foreground">123 Business Rd, Suite 456<br />Businesstown, ST 12345</p>
         </div>
         <div className="text-right">
